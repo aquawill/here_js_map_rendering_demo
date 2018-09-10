@@ -23,18 +23,87 @@
             height: 100%;
             width: 100vw;
         }
+        
+        .custom_button {
+            background: #000;
+            color: #8888ff;
+        }
+        
+        .custom_button_selected {
+            background: #000;
+            color: #000099;
+        }
+        
+        .custom_button.H_overlay.H_right::after {
+            border-color: transparent transparent transparent #000;
+        }
+        
+        table,
+        th,
+        td {
+            border: 1px solid grey;
+            font-size: 10px;
+        }
     </style>
 </head>
 
 <body onresize="resize()">
     <div id="searchbar" style=" position: absolute; top: 20px; z-index: 1000; left: 20px; ">
         <input id="geocoder_box" type="text" style="font-size: 16px;" placeholder="搜尋行政區、道路、地址" maxlength="50" size="40"> </div>
-    <div id="text_box" style=" position: absolute; top: 60px; z-index: 1000; left: 20px; ">
-        <textarea type="text" style="font-size: 14px"></textarea>
+    <div style=" position: absolute; top: 60px; z-index: 1000; left: 20px; ">
+        <label><font color="white">選擇日期</font></label>
+        <select id="weekday_selection" onchange="filter_application()">
+            <option value="-1">無限制</option>
+            <option value="0">星期日</option>
+            <option value="1">星期一</option>
+            <option value="2">星期二</option>
+            <option value="3">星期三</option>
+            <option value="4">星期四</option>
+            <option value="5">星期五</option>
+            <option value="6">星期六</option>
+        </select>
+        <label><font color="white">選擇時間</font></label>
+        <select id="hour_selection" onchange="filter_application()">
+            <option value="-1">全日</option>
+            <option value="00">00:00-00:59</option>
+            <option value="01">01:00-01:59</option>
+            <option value="02">02:00-02:59</option>
+            <option value="03">03:00-03:59</option>
+            <option value="04">04:00-04:59</option>
+            <option value="05">05:00-05:59</option>
+            <option value="06">06:00-06:59</option>
+            <option value="07">07:00-07:59</option>
+            <option value="08">08:00-08:59</option>
+            <option value="09">09:00-09:59</option>
+            <option value="10">10:00-10:59</option>
+            <option value="11">11:00-11:59</option>
+            <option value="12">12:00-12:59</option>
+            <option value="13">13:00-13:59</option>
+            <option value="14">14:00-14:59</option>
+            <option value="15">15:00-15:59</option>
+            <option value="16">16:00-16:59</option>
+            <option value="17">17:00-17:59</option>
+            <option value="18">18:00-18:59</option>
+            <option value="19">19:00-19:59</option>
+            <option value="20">20:00-20:59</option>
+            <option value="21">21:00-21:59</option>
+            <option value="22">22:00-22:59</option>
+            <option value="23">23:00-23:59</option>
+        </select>
+        <script type="text/javascript" charset="UTF-8">
+            function filter_application() {
+                var weekday_value = document.getElementById('weekday_selection').value;
+                var hour_value = document.getElementById('hour_selection').value;
+                if (cle_result) {
+                    display_heatmap_and_marker(cle_result, weekday_value, hour_value);
+                };
+            };
+        </script>
     </div>
+    <div id="text_box" style=" position: absolute; top: 20px; z-index: 1000; left: 400px; "> </div>
     <div id="map">
         <script type="text/javascript" charset="UTF-8">
-            document.getElementById('text_box').innerHTML = '';
+            //document.getElementById('text_box').innerHTML = '';
             var he_appid = 'NXqTq9BXXeEiR4yuXfjj';
             var he_appcode = '3NpseRCnS25FaujWRdthVQ';
             var platform = new H.service.Platform({
@@ -58,19 +127,30 @@
                     lat: 25.040053
                     , lng: 121.511976
                 }
-                , zoom: 17
+                , zoom: 16
                 , pixelRatio: pixelRatio
             , });
+            var twn_map = platform.getMapTileService({
+                type: 'base'
+            }).createTileLayer('mapnopttile', 'normal.night', pixelRatio === 1 ? 256 : 512, 'png8', {
+                lg: 'CHT'
+                , ppi: pixelRatio === 1 ? undefined : 320
+            });
+            map.setBaseLayer(twn_map);
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+            var geocoder_result_group = new H.map.Group();
             var selected_accident_group = new H.map.Group();
             var a1_layer_group = new H.map.Group();
             var a2_layer_group = new H.map.Group();
             selected_accident_group.setZIndex(3000);
             a1_layer_group.setZIndex(2000);
             a2_layer_group.setZIndex(1000);
+            a1_layer_group.setVisibility(false);
+            a2_layer_group.setVisibility(false);
             map.addObject(a1_layer_group);
             map.addObject(a2_layer_group);
             map.addObject(selected_accident_group);
+            map.addObject(geocoder_result_group);
             navigator.geolocation.getCurrentPosition(function (location) {
                 var gps_location_marker = new H.map.Circle({
                     lat: location.coords.latitude
@@ -102,7 +182,47 @@
                 });
             });
             var ui = H.ui.UI.createDefault(map, defaultLayers);
+            ui.removeControl('mapsettings');
             document.getElementById('searchbar').addEventListener('keypress', onSearch)
+            var myCustomControl = new H.ui.Control();
+            var a1_button = new H.ui.base.PushButton({
+                label: "顯示A1事故"
+                , onStateChange: function (evt) {
+                    if (a1_button.getState() == "down") { //or: H.ui.base.Button.State.DOWN)
+                        a1_layer_group.setVisibility(true);
+                        a1_button.setLabel('隱藏A1事故');
+                        a1_button.addClass("customControlSelected");
+                    }
+                    else {
+                        a1_layer_group.setVisibility(false);
+                        a1_button.setLabel('顯示A1事故');
+                        a1_button.removeClass("customControlSelected");
+                    }
+                }
+            });
+            a1_button.addClass("customControl");
+            var a2_button = new H.ui.base.PushButton({
+                label: "顯示A2事故"
+                , onStateChange: function (evt) {
+                    if (a2_button.getState() == "down") { //or: H.ui.base.Button.State.DOWN)
+                        a2_layer_group.setVisibility(true);
+                        a2_button.setLabel('隱藏A2事故');
+                        a2_button.addClass("customControlSelected");
+                    }
+                    else {
+                        a2_layer_group.setVisibility(false)
+                        a2_button.setLabel('顯示A2事故');
+                        a2_button.removeClass("customControlSelected");
+                    }
+                }
+            });
+            a2_button.addClass("customControl");
+            //Add the button and the panel to the control
+            myCustomControl.addChild(a1_button);
+            myCustomControl.addChild(a2_button);
+            //Set the position of the control in the UI's layout
+            myCustomControl.setAlignment("top-right");
+            ui.addControl("myCustomControl", myCustomControl);
 
             function onSearch(e) {
                 var keyCode = null;
@@ -153,6 +273,7 @@
             var bubble;
 
             function show_geocode_result(result) {
+                geocoder_result_group.removeAll();
                 console.log(result);
                 if (result.Response.View.length > 0) {
                     var location = result.Response.View[0].Result[0]
@@ -163,6 +284,22 @@
                         lat: lat
                         , lng: lng
                     });
+                    var geocoder_result_marker = new H.map.Marker({
+                        lat: lat
+                        , lng: lng
+                    })
+                    geocoder_result_marker.setData(location['Location']['Address']['Label']);
+                    var bubble = new H.ui.InfoBubble({
+                        lat: lat
+                        , lng: lng
+                    }, {
+                        content: location['Location']['Address']['Label']
+                    })
+                    geocoder_result_marker.addEventListener('tap', function () {
+                        purge_bubble();
+                        ui.addBubble(bubble);
+                    });
+                    geocoder_result_group.addObject(geocoder_result_marker);
                 }
                 else {
                     window.alert('查無此地址資料，請再次嘗試。');
@@ -200,13 +337,13 @@
                 });
             }
             var cleService = platform.getCustomLocationService();
+            var cle_layer_id = '2018_TWN_ACCI';
 
             function accidents_marker_tile_display() {
                 var a1_accident_locations = new H.service.extension.customLocation.TileProvider(cleService, {
-                    layerId: '2018_TWN_ACCI'
+                    layerId: cle_layer_id
                     , rowFilter: function (row, layerId) {
-                        // Filter rows from layer "ROAD_GEOM_FC1" with link ID "123"
-                        return layerId == '2018_TWN_ACCI' && row.getCell('TYPE') == 'A1';
+                        return layerId == cle_layer_id && row.getCell('TYPE') == 'A1';
                     }
                 , }, {
                     resultType: H.service.extension.TileProvider.ResultType.MARKER
@@ -218,9 +355,9 @@
                 var a1_layer = new H.map.layer.MarkerTileLayer(a1_accident_locations);
                 map.addLayer(a1_layer);
                 var a2_accident_locations = new H.service.extension.customLocation.TileProvider(cleService, {
-                    layerId: '2018_TWN_ACCI'
+                    layerId: cle_layer_id
                     , rowFilter: function (row, layerId) {
-                        return layerId == '2018_TWN_ACCI' && row.getCell('TYPE') == 'A2'
+                        return layerId == cle_layer_id && row.getCell('TYPE') == 'A2'
                     }
                 , }, {
                     resultType: H.service.extension.TileProvider.ResultType.MARKER
@@ -233,44 +370,49 @@
                 map.addLayer(a2_layer);
             }
             //accidents_marker_tile_display();
-            function display_heatmap_and_marker() {
-                document.getElementById('text_box').innerHTML = '<mark>Loading data from HERE CLE...</mark>';
-                cleService.request(H.service.extension.customLocation.Service.EntryPoint.SEARCH_ALL, H.service.extension.customLocation.Service.EntryPointType.JSON, {
-                    layer_id: '2018_TWN_ACCI'
-                }, function (result) {
-                    console.log('cle_loaded')
-                    document.getElementById('text_box').innerHTML = '<mark>Rendering...</mark>';
-                    var heatmap_provider = new H.data.heatmap.Provider({
-                        type: 'density'
-                        , colors: H.data.heatmap.Colors({
-                            '0': '#000', // black
-                            '0.2': '#0b0', // medium green
-                            '0.4': '#ff0', // yellow
-                            '0.7': '#f00' // red
-                        })
-                        , assumeValues: false
-                    });
-                    /*
-                    var clustering_provider = new H.clustering.Provider([], {
-                        clusteringOptions: {
-                            minWeight: 1
-                            , eps: 32
-                            , min: 1
-                            , max: 15
-                        }
-                    });
-                    */
-                    for (i = 0; i < result['geometries'].length; i++) {
-                        var attributes = result['geometries'][i]['attributes']
-                            , lat = attributes['LATITUDE']
-                            , lng = attributes['LONGITUDE'];
+            var heatmap_layer;
+            var cle_result;
+            document.getElementById('text_box').innerHTML = '<mark>下載事故資料中</mark>';
+            cleService.request(H.service.extension.customLocation.Service.EntryPoint.SEARCH_ALL, H.service.extension.customLocation.Service.EntryPointType.JSON, {
+                layer_id: cle_layer_id
+            }, function (result) {
+                cle_result = result;
+                display_heatmap_and_marker(cle_result, '-1', '-1')
+            }, console.error)
+
+            function display_heatmap_and_marker(result, weekday_filter, hour_filter) {
+                map.removeLayer(heatmap_layer);
+                a1_layer_group.removeAll();
+                a2_layer_group.removeAll();
+                var heatmap_provider = new H.data.heatmap.Provider({
+                    type: 'density'
+                    , colors: H.data.heatmap.Colors({
+                        '0': '#000000', // black
+                        '0.3': '#000066', // medium green
+                        '0.5': '#ffff00', // yellow
+                        '0.8': '#ff0000' // red
+                    })
+                    , assumeValues: false
+                });
+                /*
+                var clustering_provider = new H.clustering.Provider([], {
+                    clusteringOptions: {
+                        minWeight: 1
+                        , eps: 32
+                        , min: 1
+                        , max: 15
+                    }
+                });
+                */
+                for (i = 0; i < result['geometries'].length; i++) {
+                    function cle_result_mapping(attributes) {
                         heatmap_provider.addData([{
-                            lat: lat
-                            , lng: lng
+                            lat: attributes['LATITUDE']
+                            , lng: attributes['LONGITUDE']
                     }]);
                         var a_marker = new H.map.Marker({
-                            lat: lat
-                            , lng: lng
+                            lat: attributes['LATITUDE']
+                            , lng: attributes['LONGITUDE']
                         });
                         a_marker.setData(attributes);
                         //clustering_provider.addDataPoint(new H.clustering.DataPoint(lat, lng))
@@ -283,47 +425,73 @@
                             a2_layer_group.addObject(a_marker);
                         }
                     }
-                    var heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
-                        opacity: 0.8
+                    var attributes = result['geometries'][i]['attributes']
+                        , hour = attributes['HOUR']
+                        , weekday = attributes['WEEKDAY'];
+                    if (hour_filter != '-1' && weekday_filter != '-1') {
+                        if (hour == hour_filter && weekday == weekday_filter) {
+                            cle_result_mapping(attributes)
+                        }
+                    }
+                    else if (hour_filter == '-1' && weekday_filter != '-1') {
+                        if (weekday == weekday_filter) {
+                            cle_result_mapping(attributes)
+                        }
+                    }
+                    else if (hour_filter != '-1' && weekday_filter == '-1') {
+                        if (hour == hour_filter) {
+                            cle_result_mapping(attributes)
+                        }
+                    }
+                    else {
+                        cle_result_mapping(attributes)
+                    }
+                }
+                heatmap_layer = new H.map.layer.TileLayer(heatmap_provider, {
+                    opacity: 0.8
+                });
+                /*
+                var clustering_layer = new H.map.layer.ObjectLayer(clustering_provider);
+                map.addLayer(clustering_layer);
+                console.log('cluster loaded');
+                */
+                map.addLayer(heatmap_layer);
+                console.log('heatmap loaded');
+                a1_layer_group.forEach(function (i) {
+                    var location = i.getData()['LOCATION']
+                        , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
+                        , time = i.getData()['TIME']
+                        , vehicle_type = i.getData()['VEHICLE_TYPE']
+                        , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                    var bubble = new H.ui.InfoBubble(i.getPosition(), {
+                        //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
+                        content: bubble_text
+                    })
+                    i.addEventListener('tap', function () {
+                        purge_bubble();
+                        console.log(i.getData());
+                        ui.addBubble(bubble);
                     });
-                    /*
-                    var clustering_layer = new H.map.layer.ObjectLayer(clustering_provider);
-                    map.addLayer(clustering_layer);
-                    console.log('cluster loaded');
-                    */
-                    map.addLayer(heatmap_layer);
-                    console.log('heatmap loaded')
-                    a1_layer_group.forEach(function (i) {
-                        var location = i.getData()['LOCATION']
-                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                            , time = i.getData()['TIME']
-                            , vehicle_type = i.getData()['VEHICLE_TYPE']
-                        var bubble = new H.ui.InfoBubble(i.getPosition(), {
-                            content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
-                        })
-                        i.addEventListener('tap', function () {
-                            purge_bubble();
-                            console.log(i.getData());
-                            ui.addBubble(bubble);
-                        });
+                });
+                a2_layer_group.forEach(function (i) {
+                    var location = i.getData()['LOCATION']
+                        , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
+                        , time = i.getData()['TIME']
+                        , vehicle_type = i.getData()['VEHICLE_TYPE']
+                        , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                    var bubble = new H.ui.InfoBubble(i.getPosition(), {
+                        //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
+                        content: bubble_text
+                    })
+                    i.addEventListener('tap', function () {
+                        purge_bubble();
+                        console.log(i.getData());
+                        ui.addBubble(bubble);
                     });
-                    a2_layer_group.forEach(function (i) {
-                        var location = i.getData()['LOCATION']
-                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                            , time = i.getData()['TIME']
-                            , vehicle_type = i.getData()['VEHICLE_TYPE']
-                        var bubble = new H.ui.InfoBubble(i.getPosition(), {
-                            content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
-                        })
-                        i.addEventListener('tap', function () {
-                            purge_bubble();
-                            console.log(i.getData());
-                            ui.addBubble(bubble);
-                        });
-                    });
-                    document.getElementById('text_box').innerHTML = '';
-                }, console.error);
+                });
+                document.getElementById('text_box').innerHTML = '';
             }
+            /*
             map.addEventListener('mapviewchangeend', function () {
                 if (map.getZoom() < 16) {
                     a1_layer_group.setVisibility(false);
@@ -334,8 +502,7 @@
                     a2_layer_group.setVisibility(true);
                 }
             })
-            display_heatmap_and_marker();
-
+            */
             function resize() {
                 var view_port = map.getViewPort();
                 view_port.resize();
