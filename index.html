@@ -50,6 +50,7 @@
 <body onresize="resize()">
     <div id="searchbar" style=" position: absolute; top: 20px; z-index: 1000; left: 20px; ">
         <input id="geocoder_box" type="text" style="font-size: 16px;" placeholder="搜尋行政區、道路、地址" maxlength="50" size="40"> </div>
+    <div id="text_box" style=" position: absolute; top: 20px; z-index: 1000; left: 500px; "> </div>
     <div style=" position: absolute; top: 60px; z-index: 1000; left: 20px; ">
         <label><font color="white">選擇日期</font></label>
         <select id="weekday_selection" onchange="filter_application()">
@@ -100,7 +101,7 @@
             };
         </script>
     </div>
-    <div id="text_box" style=" position: absolute; top: 20px; z-index: 1000; left: 400px; "> </div>
+    <div id="text_box" style=" position: absolute; top: 20px; z-index: 1000; left: 500px; "> </div>
     <div id="map">
         <script type="text/javascript" charset="UTF-8">
             //document.getElementById('text_box').innerHTML = '';
@@ -458,33 +459,33 @@
                 map.addLayer(heatmap_layer);
                 console.log('heatmap loaded');
                 a1_layer_group.forEach(function (i) {
-                    var location = i.getData()['LOCATION']
-                        , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                        , time = i.getData()['TIME']
-                        , vehicle_type = i.getData()['VEHICLE_TYPE']
-                        , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
-                    var bubble = new H.ui.InfoBubble(i.getPosition(), {
-                        //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
-                        content: bubble_text
-                    })
                     i.addEventListener('tap', function () {
                         purge_bubble();
+                        var location = i.getData()['LOCATION']
+                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
+                            , time = i.getData()['TIME']
+                            , vehicle_type = i.getData()['VEHICLE_TYPE']
+                            , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                        var bubble = new H.ui.InfoBubble(i.getPosition(), {
+                            //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
+                            content: bubble_text
+                        })
                         console.log(i.getData());
                         ui.addBubble(bubble);
                     });
                 });
                 a2_layer_group.forEach(function (i) {
-                    var location = i.getData()['LOCATION']
-                        , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                        , time = i.getData()['TIME']
-                        , vehicle_type = i.getData()['VEHICLE_TYPE']
-                        , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
-                    var bubble = new H.ui.InfoBubble(i.getPosition(), {
-                        //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
-                        content: bubble_text
-                    })
                     i.addEventListener('tap', function () {
                         purge_bubble();
+                        var location = i.getData()['LOCATION']
+                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
+                            , time = i.getData()['TIME']
+                            , vehicle_type = i.getData()['VEHICLE_TYPE']
+                            , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                        var bubble = new H.ui.InfoBubble(i.getPosition(), {
+                            //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
+                            content: bubble_text
+                        })
                         console.log(i.getData());
                         ui.addBubble(bubble);
                     });
