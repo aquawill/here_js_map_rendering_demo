@@ -44,6 +44,7 @@
             border: 1px solid grey;
             font-size: 10px;
         }
+
     </style>
 </head>
 
@@ -99,6 +100,7 @@
                     display_heatmap_and_marker(cle_result, weekday_value, hour_value);
                 };
             };
+
         </script>
     </div>
     <div id="text_box" style=" position: absolute; top: 20px; z-index: 1000; left: 500px; "> </div>
@@ -108,10 +110,10 @@
             var he_appid = 'KymxRBvsVraBqbxy6gCt';
             var he_appcode = 'LbNbmVAeiyg51Dbr2C_NOw';
             var platform = new H.service.Platform({
-                app_id: he_appid
-                , app_code: he_appcode
-                , useHTTPS: true
-                , useCIT: true
+                app_id: he_appid,
+                app_code: he_appcode,
+                useHTTPS: true
+                    //                , useCIT: true
             });
             var geocoder = platform.getGeocodingService();
             //var router = platform.getRoutingService();
@@ -120,22 +122,22 @@
             var ppi = pixelRatio === 1 ? 72 : 320
             var tile_size = pixelRatio === 1 ? 256 : 512
             var defaultLayers = platform.createDefaultLayers({
-                tileSize: tile_size
-                , ppi: ppi
-            , });
+                tileSize: tile_size,
+                ppi: ppi,
+            });
             var map = new H.Map(document.getElementById('map'), defaultLayers.normal.mapnight, {
                 center: {
-                    lat: 25.040053
-                    , lng: 121.511976
-                }
-                , zoom: 16
-                , pixelRatio: pixelRatio
-            , });
+                    lat: 25.040053,
+                    lng: 121.511976
+                },
+                zoom: 16,
+                pixelRatio: pixelRatio,
+            });
             var twn_map = platform.getMapTileService({
                 type: 'base'
             }).createTileLayer('mapnopttile', 'normal.night', pixelRatio === 1 ? 256 : 512, 'png8', {
-                lg: 'CHT'
-                , ppi: pixelRatio === 1 ? undefined : 320
+                lg: 'CHT',
+                ppi: pixelRatio === 1 ? 72 : 320
             });
             map.setBaseLayer(twn_map);
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
@@ -152,25 +154,25 @@
             map.addObject(a2_layer_group);
             map.addObject(selected_accident_group);
             map.addObject(geocoder_result_group);
-            navigator.geolocation.getCurrentPosition(function (location) {
+            navigator.geolocation.getCurrentPosition(function(location) {
                 var gps_location_marker = new H.map.Circle({
-                    lat: location.coords.latitude
-                    , lng: location.coords.longitude
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude
                 }, 5, {
                     style: {
-                        strokeColor: 'rgba(245, 117, 249, 0.3)'
-                        , lineWidth: 2
-                        , fillColor: 'rgba(184, 197, 252, 0.5)'
+                        strokeColor: 'rgba(245, 117, 249, 0.3)',
+                        lineWidth: 2,
+                        fillColor: 'rgba(184, 197, 252, 0.5)'
                     }
                 });
                 var gps_location_marker_radius = new H.map.Circle({
-                    lat: location.coords.latitude
-                    , lng: location.coords.longitude
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude
                 }, location.coords.accuracy, {
                     style: {
-                        strokeColor: 'rgba(245, 117, 249, 0.3)'
-                        , lineWidth: 2
-                        , fillColor: 'rgba(250, 184, 252, 0.3)'
+                        strokeColor: 'rgba(245, 117, 249, 0.3)',
+                        lineWidth: 2,
+                        fillColor: 'rgba(250, 184, 252, 0.3)'
                     }
                 });
                 gps_location_marker_radius.setZIndex(0);
@@ -178,8 +180,8 @@
                 map.addObject(gps_location_marker_radius);
                 map.addObject(gps_location_marker);
                 map.setCenter({
-                    lat: location.coords.latitude
-                    , lng: location.coords.longitude
+                    lat: location.coords.latitude,
+                    lng: location.coords.longitude
                 });
             });
             var ui = H.ui.UI.createDefault(map, defaultLayers);
@@ -187,14 +189,13 @@
             document.getElementById('searchbar').addEventListener('keypress', onSearch)
             var myCustomControl = new H.ui.Control();
             var a1_button = new H.ui.base.PushButton({
-                label: "顯示A1事故"
-                , onStateChange: function (evt) {
+                label: "顯示A1事故",
+                onStateChange: function(evt) {
                     if (a1_button.getState() == "down") { //or: H.ui.base.Button.State.DOWN)
                         a1_layer_group.setVisibility(true);
                         a1_button.setLabel('隱藏A1事故');
                         a1_button.addClass("customControlSelected");
-                    }
-                    else {
+                    } else {
                         a1_layer_group.setVisibility(false);
                         a1_button.setLabel('顯示A1事故');
                         a1_button.removeClass("customControlSelected");
@@ -203,14 +204,13 @@
             });
             a1_button.addClass("customControl");
             var a2_button = new H.ui.base.PushButton({
-                label: "顯示A2事故"
-                , onStateChange: function (evt) {
+                label: "顯示A2事故",
+                onStateChange: function(evt) {
                     if (a2_button.getState() == "down") { //or: H.ui.base.Button.State.DOWN)
                         a2_layer_group.setVisibility(true);
                         a2_button.setLabel('隱藏A2事故');
                         a2_button.addClass("customControlSelected");
-                    }
-                    else {
+                    } else {
                         a2_layer_group.setVisibility(false)
                         a2_button.setLabel('顯示A2事故');
                         a2_button.removeClass("customControlSelected");
@@ -229,17 +229,16 @@
                 var keyCode = null;
                 if (e.which) {
                     keyCode = e.which;
-                }
-                else if (e.keyCode) {
+                } else if (e.keyCode) {
                     keyCode = e.keyCode;
                 }
                 if (keyCode == 13) {
                     var geocoder_string = e.srcElement.value;
                     var geocodingParams = {
-                        searchText: geocoder_string
-                        , country: 'TWN'
+                        searchText: geocoder_string,
+                        country: 'TWN'
                     };
-                    geocoder.geocode(geocodingParams, show_geocode_result, function (e) {
+                    geocoder.geocode(geocodingParams, show_geocode_result, function(e) {
                         console.log(e);
                     });
                 }
@@ -254,18 +253,17 @@
             };
 
             function getURL(URL) {
-                return new Promise(function (resolve, reject) {
+                return new Promise(function(resolve, reject) {
                     var req = new XMLHttpRequest();
                     req.open('GET', URL, true);
-                    req.onload = function () {
+                    req.onload = function() {
                         if (req.status === 200) {
                             resolve(req.responseText);
-                        }
-                        else {
+                        } else {
                             reject(new Error(req.statusText));
                         }
                     };
-                    req.onerror = function () {
+                    req.onerror = function() {
                         reject(new Error(req.statusText));
                     };
                     req.send();
@@ -277,32 +275,31 @@
                 geocoder_result_group.removeAll();
                 console.log(result);
                 if (result.Response.View.length > 0) {
-                    var location = result.Response.View[0].Result[0]
-                        , display_position = location['Location']['DisplayPosition']
-                        , lat = display_position['Latitude']
-                        , lng = display_position['Longitude'];
+                    var location = result.Response.View[0].Result[0],
+                        display_position = location['Location']['DisplayPosition'],
+                        lat = display_position['Latitude'],
+                        lng = display_position['Longitude'];
                     map.setCenter({
-                        lat: lat
-                        , lng: lng
+                        lat: lat,
+                        lng: lng
                     });
                     var geocoder_result_marker = new H.map.Marker({
-                        lat: lat
-                        , lng: lng
+                        lat: lat,
+                        lng: lng
                     })
                     geocoder_result_marker.setData(location['Location']['Address']['Label']);
                     var bubble = new H.ui.InfoBubble({
-                        lat: lat
-                        , lng: lng
+                        lat: lat,
+                        lng: lng
                     }, {
                         content: location['Location']['Address']['Label']
                     })
-                    geocoder_result_marker.addEventListener('tap', function () {
+                    geocoder_result_marker.addEventListener('tap', function() {
                         purge_bubble();
                         ui.addBubble(bubble);
                     });
                     geocoder_result_group.addObject(geocoder_result_marker);
-                }
-                else {
+                } else {
                     window.alert('查無此地址資料，請再次嘗試。');
                 }
             };
@@ -318,8 +315,8 @@
             function img_icon(url, center) {
                 var icon_object = new H.map.Icon(url, {
                     anchor: {
-                        x: center
-                        , y: center
+                        x: center,
+                        y: center
                     }
                 });
                 return icon_object;
@@ -329,41 +326,48 @@
 
             function rev_geocoder(loc) {
                 var reverseGeocodingParameters = {
-                    prox: loc.lat + ',' + loc.lng + ',100'
-                    , mode: 'retrieveAddresses'
-                    , maxresults: 1
+                    prox: loc.lat + ',' + loc.lng + ',100',
+                    mode: 'retrieveAddresses',
+                    maxresults: 1
                 };
-                geocoder.reverseGeocode(reverseGeocodingParameters, show_geocode_result, function (e) {
+                geocoder.reverseGeocode(reverseGeocodingParameters, show_geocode_result, function(e) {
                     alert(e);
                 });
             }
+
+
+            var xyzService = platform.getXYZService({
+                token: 'aAMs-2s5fT-6OVQi5UBWJ4AA'
+            });
+
+
             var cleService = platform.getCustomLocationService();
             var cle_layer_id = '2018_TWN_ACCI';
 
             function accidents_marker_tile_display() {
                 var a1_accident_locations = new H.service.extension.customLocation.TileProvider(cleService, {
-                    layerId: cle_layer_id
-                    , rowFilter: function (row, layerId) {
+                    layerId: cle_layer_id,
+                    rowFilter: function(row, layerId) {
                         return layerId == cle_layer_id && row.getCell('TYPE') == 'A1';
-                    }
-                , }, {
-                    resultType: H.service.extension.TileProvider.ResultType.MARKER
-                    , min: 11
-                    , styleCallback: function (data) {
+                    },
+                }, {
+                    resultType: H.service.extension.TileProvider.ResultType.MARKER,
+                    min: 11,
+                    styleCallback: function(data) {
                         return a1_icon
                     }
                 });
                 var a1_layer = new H.map.layer.MarkerTileLayer(a1_accident_locations);
                 map.addLayer(a1_layer);
                 var a2_accident_locations = new H.service.extension.customLocation.TileProvider(cleService, {
-                    layerId: cle_layer_id
-                    , rowFilter: function (row, layerId) {
+                    layerId: cle_layer_id,
+                    rowFilter: function(row, layerId) {
                         return layerId == cle_layer_id && row.getCell('TYPE') == 'A2'
-                    }
-                , }, {
-                    resultType: H.service.extension.TileProvider.ResultType.MARKER
-                    , min: 16
-                    , styleCallback: function (data) {
+                    },
+                }, {
+                    resultType: H.service.extension.TileProvider.ResultType.MARKER,
+                    min: 16,
+                    styleCallback: function(data) {
                         return a2_icon
                     }
                 });
@@ -376,7 +380,7 @@
             document.getElementById('text_box').innerHTML = '<mark>下載事故資料中</mark>';
             cleService.request(H.service.extension.customLocation.Service.EntryPoint.SEARCH_ALL, H.service.extension.customLocation.Service.EntryPointType.JSON, {
                 layer_id: cle_layer_id
-            }, function (result) {
+            }, function(result) {
                 cle_result = result;
                 display_heatmap_and_marker(cle_result, '-1', '-1')
             }, console.error)
@@ -386,14 +390,14 @@
                 a1_layer_group.removeAll();
                 a2_layer_group.removeAll();
                 var heatmap_provider = new H.data.heatmap.Provider({
-                    type: 'density'
-                    , colors: H.data.heatmap.Colors({
+                    type: 'density',
+                    colors: H.data.heatmap.Colors({
                         '0': '#000000', // black
                         '0.3': '#000066', // medium green
                         '0.5': '#ffff00', // yellow
                         '0.8': '#ff0000' // red
-                    })
-                    , assumeValues: false
+                    }),
+                    assumeValues: false
                 });
                 /*
                 var clustering_provider = new H.clustering.Provider([], {
@@ -408,43 +412,39 @@
                 for (i = 0; i < result['geometries'].length; i++) {
                     function cle_result_mapping(attributes) {
                         heatmap_provider.addData([{
-                            lat: attributes['LATITUDE']
-                            , lng: attributes['LONGITUDE']
-                    }]);
+                            lat: attributes['LATITUDE'],
+                            lng: attributes['LONGITUDE']
+                        }]);
                         var a_marker = new H.map.Marker({
-                            lat: attributes['LATITUDE']
-                            , lng: attributes['LONGITUDE']
+                            lat: attributes['LATITUDE'],
+                            lng: attributes['LONGITUDE']
                         });
                         a_marker.setData(attributes);
                         //clustering_provider.addDataPoint(new H.clustering.DataPoint(lat, lng))
                         if (attributes['TYPE'] == 'A1') {
                             a_marker.setIcon(a1_icon);
                             a1_layer_group.addObject(a_marker);
-                        }
-                        else if (attributes['TYPE'] == 'A2') {
+                        } else if (attributes['TYPE'] == 'A2') {
                             a_marker.setIcon(a2_icon);
                             a2_layer_group.addObject(a_marker);
                         }
                     }
-                    var attributes = result['geometries'][i]['attributes']
-                        , hour = attributes['HOUR']
-                        , weekday = attributes['WEEKDAY'];
+                    var attributes = result['geometries'][i]['attributes'],
+                        hour = attributes['HOUR'],
+                        weekday = attributes['WEEKDAY'];
                     if (hour_filter != '-1' && weekday_filter != '-1') {
                         if (hour == hour_filter && weekday == weekday_filter) {
                             cle_result_mapping(attributes)
                         }
-                    }
-                    else if (hour_filter == '-1' && weekday_filter != '-1') {
+                    } else if (hour_filter == '-1' && weekday_filter != '-1') {
                         if (weekday == weekday_filter) {
                             cle_result_mapping(attributes)
                         }
-                    }
-                    else if (hour_filter != '-1' && weekday_filter == '-1') {
+                    } else if (hour_filter != '-1' && weekday_filter == '-1') {
                         if (hour == hour_filter) {
                             cle_result_mapping(attributes)
                         }
-                    }
-                    else {
+                    } else {
                         cle_result_mapping(attributes)
                     }
                 }
@@ -458,14 +458,14 @@
                 */
                 map.addLayer(heatmap_layer);
                 console.log('heatmap loaded');
-                a1_layer_group.forEach(function (i) {
-                    i.addEventListener('tap', function () {
+                a1_layer_group.forEach(function(i) {
+                    i.addEventListener('tap', function() {
                         purge_bubble();
-                        var location = i.getData()['LOCATION']
-                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                            , time = i.getData()['TIME']
-                            , vehicle_type = i.getData()['VEHICLE_TYPE']
-                            , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                        var location = i.getData()['LOCATION'],
+                            wounded_or_dead = i.getData()['WOUNDED_OR_DEAD'],
+                            time = i.getData()['TIME'],
+                            vehicle_type = i.getData()['VEHICLE_TYPE'],
+                            bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
                         var bubble = new H.ui.InfoBubble(i.getPosition(), {
                             //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
                             content: bubble_text
@@ -474,14 +474,14 @@
                         ui.addBubble(bubble);
                     });
                 });
-                a2_layer_group.forEach(function (i) {
-                    i.addEventListener('tap', function () {
+                a2_layer_group.forEach(function(i) {
+                    i.addEventListener('tap', function() {
                         purge_bubble();
-                        var location = i.getData()['LOCATION']
-                            , wounded_or_dead = i.getData()['WOUNDED_OR_DEAD']
-                            , time = i.getData()['TIME']
-                            , vehicle_type = i.getData()['VEHICLE_TYPE']
-                            , bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
+                        var location = i.getData()['LOCATION'],
+                            wounded_or_dead = i.getData()['WOUNDED_OR_DEAD'],
+                            time = i.getData()['TIME'],
+                            vehicle_type = i.getData()['VEHICLE_TYPE'],
+                            bubble_text = "<table><tbody><tr><td>時間</td><td>" + time + "</td></tr><tr><td>地點</td><td>" + location + "</td></tr><tr><td>傷亡</td><td>" + wounded_or_dead + "</td></tr><tr><td>車輛</td><td>" + vehicle_type + "</td></tr></tbody></table>"
                         var bubble = new H.ui.InfoBubble(i.getPosition(), {
                             //content: '時間：' + time + '<br>地點：' + location + '<br>傷亡：' + wounded_or_dead + '<br>車輛：' + vehicle_type
                             content: bubble_text
@@ -508,6 +508,7 @@
                 var view_port = map.getViewPort();
                 view_port.resize();
             }
+
         </script>
     </div>
 </body>
